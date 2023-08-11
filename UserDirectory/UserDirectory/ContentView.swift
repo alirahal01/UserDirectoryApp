@@ -21,23 +21,9 @@ struct ContentView: View {
                 ProgressView()
                     .imageScale(.large)
             case .success(let loadingViewModel):
-                VStack(alignment: .leading) {
-                    List {
-                        ForEach(loadingViewModel.usersData.indices, id: \.self) { index in
-
-                            let user = loadingViewModel.usersData[index]
-
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text(user.username ?? "")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                Text(user.email ?? "")
-                                    .font(.body)
-                                    .fontWeight(.medium)
-                            }
-                        }
-                    }
-                }
+                UserListView(loadingViewModel: loadingViewModel, loadMoreDataAction: {
+                    print("Paginate")
+                })
             case .failed(let errorViewModel):
                 Color.clear.alert(isPresented: $viewModel.showErrorAlert) {
                     Alert(title: Text("Error"), message: Text(errorViewModel.message), dismissButton: .default(Text("OK")))
