@@ -19,6 +19,8 @@
 		9FC61EE62A85247A0097B80D /* RequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EE52A85247A0097B80D /* RequestHandler.swift */; };
 		9FC61EE92A8524A50097B80D /* DataLoadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EE82A8524A50097B80D /* DataLoadError.swift */; };
 		9FC61EEB2A853BF80097B80D /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEA2A853BF80097B80D /* UserModel.swift */; };
+		9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EED2A8573100097B80D /* UsersListViewModel.swift */; };
+		9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEF2A8573770097B80D /* LoadingState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,8 @@
 		9FC61EE52A85247A0097B80D /* RequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestHandler.swift; sourceTree = "<group>"; };
 		9FC61EE82A8524A50097B80D /* DataLoadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoadError.swift; sourceTree = "<group>"; };
 		9FC61EEA2A853BF80097B80D /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		9FC61EED2A8573100097B80D /* UsersListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersListViewModel.swift; sourceTree = "<group>"; };
+		9FC61EEF2A8573770097B80D /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +108,7 @@
 		9FC61EB42A8524220097B80D /* UserDirectory */ = {
 			isa = PBXGroup;
 			children = (
+				9FC61EEC2A8572C80097B80D /* ViewModel */,
 				9FC61EDF2A85242C0097B80D /* Network */,
 				9FC61EEA2A853BF80097B80D /* UserModel.swift */,
 				9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */,
@@ -164,6 +169,15 @@
 				9FC61EE82A8524A50097B80D /* DataLoadError.swift */,
 			);
 			path = Error;
+			sourceTree = "<group>";
+		};
+		9FC61EEC2A8572C80097B80D /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				9FC61EED2A8573100097B80D /* UsersListViewModel.swift */,
+				9FC61EEF2A8573770097B80D /* LoadingState.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -301,6 +315,8 @@
 				9FC61EB82A8524220097B80D /* ContentView.swift in Sources */,
 				9FC61EE62A85247A0097B80D /* RequestHandler.swift in Sources */,
 				9FC61EE12A85244A0097B80D /* APIRoute.swift in Sources */,
+				9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */,
+				9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */,
 				9FC61EE32A8524540097B80D /* RequestHandling.swift in Sources */,
 				9FC61EB62A8524220097B80D /* UserDirectoryApp.swift in Sources */,
 			);

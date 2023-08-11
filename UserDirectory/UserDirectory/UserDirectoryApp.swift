@@ -11,7 +11,7 @@ import SwiftUI
 struct UserDirectoryApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(requestHandler: RequestHandler())
+            ContentView(viewModel: UsersListViewModel(requestHandler: RequestHandler()))
         }
     }
 }

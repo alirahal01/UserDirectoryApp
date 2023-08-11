@@ -9,25 +9,41 @@ import SwiftUI
 
 struct ContentView: View {
     
-    let requestHandler: RequestHandling
+    @ObservedObject var viewModel: UsersListViewModel
     
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, Users!")
-        }
-        .padding()
-        .onAppear {
-            requestHandler.request(route: .getUsers(page: "10", results: "30")) {  (result: Result<UserModel, DataLoadError>) -> Void in
-                switch result {
-                case .success(let response):
-                    print(response)
-                case .failure(let dataLoadError):
-                    print(dataLoadError)
+            let state = viewModel.state
+            switch state {
+            case . idle:
+                Color.clear.onAppear(perform: { viewModel.loadData() })
+            case .loading:
+                ProgressView()
+                    .imageScale(.large)
+            case .success(let loadingViewModel):
+                VStack(alignment: .leading) {
+                    List {
+                        ForEach(loadingViewModel.usersData.indices, id: \.self) { index in
+
+                            let user = loadingViewModel.usersData[index]
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text(user.username ?? "")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                Text(user.email ?? "")
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                            }
+                        }
+                    }
+                }
+            case .failed(let errorViewModel):
+                Color.clear.alert(isPresented: $viewModel.showErrorAlert) {
+                    Alert(title: Text("Error"), message: Text(errorViewModel.message), dismissButton: .default(Text("OK")))
                 }
             }
         }
+        .padding()
     }
 }
