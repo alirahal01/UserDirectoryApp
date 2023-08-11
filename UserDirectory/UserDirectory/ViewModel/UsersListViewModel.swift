@@ -53,7 +53,7 @@ class UsersListViewModel: ObservableObject {
                 }
             case .failure(let error):
                 print("Error: \(error)")
-                //                self.retryEnabled = true
+                self?.showErrorAlert = true
                 DispatchQueue.main.async {
                     self?.state = .failed(ErrorViewModel(message: error.localizedDescription))
                 }
