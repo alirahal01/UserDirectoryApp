@@ -41,6 +41,7 @@ class UsersListViewModel: ObservableObject {
             switch result {
             case .success(let response):
                 print(response)
+                self?.showErrorAlert = false
                 let users = response.results
                 if users.count != 0 {
                     let usersData = users.map { UsersData(id: UUID().uuidString, username: $0.name.title, phoneNumber: $0.cell, email: $0.email, imageURL: $0.picture.large)
