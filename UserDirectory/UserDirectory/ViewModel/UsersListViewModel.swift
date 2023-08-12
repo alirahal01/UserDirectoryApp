@@ -17,6 +17,7 @@ class UsersListViewModel: ObservableObject {
     @Published var usersModel: [UsersDataLocal] = []
     @Published private(set) var state: LoadingState<LoadingViewModel> = .idle
     @Published var showErrorAlert = false
+    
     private var offset: Int = 0
     let userCoreDataManager: UserCoreDataManager
         
@@ -26,7 +27,7 @@ class UsersListViewModel: ObservableObject {
     }
 
     func incrementOffset() {
-        self.offset += 100
+        self.offset += 1
     }
 
     func loadData(loadMore: Bool? = false) {
@@ -34,10 +35,12 @@ class UsersListViewModel: ObservableObject {
             return
         }
         state = .loading
-        
+        if let loadMore = loadMore, loadMore == true {
+            self.incrementOffset()
+        }
         guard let requestHandler = requestHandler else { return }
 
-        requestHandler.request(route: .getUsers(page: "1", results: "8")) { [weak self] result in
+        requestHandler.request(route: .getUsers(page: String(offset), results: "8")) { [weak self] result in
             DispatchQueue.global().async {
                 self?.handleResponse(result)
             }
@@ -46,17 +49,10 @@ class UsersListViewModel: ObservableObject {
 
     private func handleResponse(_ result: Result<UserModel, DataLoadError>) {
         var newUsersData: [UsersDataLocal] = []
-
         switch result {
         case .success(let response):
-            let responseIDs = response.results.map { $0.login.uuid }
-            if let existingUsers = fetchUsersWithoutIDs(ids: responseIDs), existingUsers.count != 0 {
-                let cachedUsersData = existingUsers.map {
-                    UsersListViewModel.UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true)
-                }
-                newUsersData.append(contentsOf: cachedUsersData)
-            }
-            handleSuccess(response, &newUsersData)
+            handleCaching(response, &newUsersData)
+            newUsersData = handleSuccess(response)
         case .failure(let error):
             handleFailure(error, newUsersData)
         }
@@ -68,21 +64,38 @@ class UsersListViewModel: ObservableObject {
         }
     }
 
-    private func handleSuccess(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
+    private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
+        response.results.forEach { newUser in
+            let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false)
+            insertUserData(usersData: userModelLocal)
+        }
+    }
+    
+    fileprivate func handleMappedUsers(_ response: UserModel, _ mappedUsers: [UsersListViewModel.UsersDataLocal]) -> [UsersListViewModel.UsersDataLocal] {
+        let responseIDs = response.results.map { $0.login.uuid }
+        if let existingUsers = self.fetchUsersWithoutIDs(ids: responseIDs), existingUsers.count != 0 {
+            let cachedUsersData = existingUsers.map {
+                UsersListViewModel.UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true)
+            }
+            return mappedUsers + cachedUsersData
+            
+        } else {
+            return mappedUsers
+        }
+    }
+    
+    private func handleSuccess(_ response: UserModel) -> [UsersDataLocal] {
         DispatchQueue.main.async {
             self.showErrorAlert = false
         }
-
         let users = response.results
         if !users.isEmpty {
             let mappedUsers = users.map {
                 UsersListViewModel.UsersDataLocal(id: UUID().uuidString, username: $0.login.username, phoneNumber: $0.cell, email: $0.email, imageURL: $0.picture.large, cached: false)
             }
-            newUsersData = mappedUsers + newUsersData
-            newUsersData.forEach { newUser in
-                insertUserData(usersData: newUser)
-            }
+            return handleMappedUsers(response, mappedUsers)
         }
+        return []
     }
 
     private func handleFailure(_ error: DataLoadError, _ newUsersData: [UsersDataLocal]) {
@@ -119,12 +132,23 @@ extension UsersListViewModel {
             userCoreDataManager.insertDataIntoCoreData(usersData)
         }
         
-        func fetchExistingUsers() -> [UserCoreData]? {
-            return userCoreDataManager.fetchExistingUsers()
+        func fetchExistingUsers() -> [UsersDataLocal] {
+            return userCoreDataManager.fetchExistingUsers()?
+                .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true) } ?? []
         }
         
         func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
             return userCoreDataManager.fetchUsersWithoutIDs(ids)
         }
         
+}
+
+extension UsersListViewModel.LoadingViewModel {
+    var numCachedUsers: Int {
+        usersData.filter { $0.cached ?? false }.count
+    }
+    
+    var numNewUsers: Int {
+        usersData.filter { !($0.cached ?? false) }.count
+    }
 }
