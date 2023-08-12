@@ -30,7 +30,7 @@ class UserCoreDataManager {
         newUser.phoneNumber = usersData.phoneNumber
         newUser.imageURL = usersData.imageURL
         newUser.id = usersData.id
-        
+        newUser.gender = usersData.gender
         do {
             try context.save()
         } catch {

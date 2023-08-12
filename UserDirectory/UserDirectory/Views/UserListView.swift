@@ -14,6 +14,14 @@ struct UserListView: View {
     let clearCache: () -> Void
     
     var body: some View {
+        VStack {
+            ProgressView(value: loadingViewModel.malePercentage, total: 100.0)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                        .background(Color.pink.opacity(1))
+                        .cornerRadius(6)
+                        .padding(.vertical, 5)
+            Text("Female: \(String(format: "%.1f", loadingViewModel.femalePercentage))%, Male: \(String(format: "%.1f", loadingViewModel.malePercentage))%")
+                }
         Text("Cached: \(loadingViewModel.numCachedUsers), New: \(loadingViewModel.numNewUsers)")
         Button("clear cache") {
             clearCache()

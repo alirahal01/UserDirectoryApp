@@ -66,7 +66,7 @@ class UsersListViewModel: ObservableObject {
     
     private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
         response.results.forEach { newUser in
-            let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false)
+            let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false, gender: newUser.gender)
             insertUserData(usersData: userModelLocal)
         }
     }
@@ -75,7 +75,7 @@ class UsersListViewModel: ObservableObject {
         let responseIDs = response.results.map { $0.login.uuid }
         if let existingUsers = self.fetchUsersWithoutIDs(ids: responseIDs), existingUsers.count != 0 {
             let cachedUsersData = existingUsers.map {
-                UsersListViewModel.UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true)
+                UsersListViewModel.UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true, gender: $0.gender ?? "")
             }
             return mappedUsers + cachedUsersData
             
@@ -91,7 +91,7 @@ class UsersListViewModel: ObservableObject {
         let users = response.results
         if !users.isEmpty {
             let mappedUsers = users.map {
-                UsersListViewModel.UsersDataLocal(id: UUID().uuidString, username: $0.login.username, phoneNumber: $0.cell, email: $0.email, imageURL: $0.picture.large, cached: false)
+                UsersListViewModel.UsersDataLocal(id: UUID().uuidString, username: $0.login.username, phoneNumber: $0.cell, email: $0.email, imageURL: $0.picture.large, cached: false, gender: $0.gender)
             }
             return handleMappedUsers(response, mappedUsers)
         }
@@ -115,6 +115,7 @@ extension UsersListViewModel {
         let email: String?
         let imageURL: String?
         let cached: Bool?
+        let gender: String?
     }
     
     struct LoadingViewModel: Equatable {
@@ -134,7 +135,7 @@ extension UsersListViewModel {
     
     func fetchExistingUsers() -> [UsersDataLocal] {
         return userCoreDataManager.fetchExistingUsers()?
-            .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true) } ?? []
+            .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true, gender: $0.gender) } ?? []
     }
     
     func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
@@ -156,4 +157,17 @@ extension UsersListViewModel.LoadingViewModel {
     var numNewUsers: Int {
         usersData.filter { !($0.cached ?? false) }.count
     }
+    
+    var malePercentage: Double {
+        let totalUsers = usersData.count
+        let maleUsers = usersData.filter { $0.gender == "male" }.count
+        return Double(maleUsers) / Double(totalUsers) * 100
+    }
+    
+    var femalePercentage: Double {
+        let totalUsers = usersData.count
+        let femaleUsers = usersData.filter { $0.gender == "female" }.count
+        return Double(femaleUsers) / Double(totalUsers) * 100
+    }
+
 }
