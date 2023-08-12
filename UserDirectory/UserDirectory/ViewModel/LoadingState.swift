@@ -14,6 +14,6 @@ struct ErrorViewModel: Equatable {
 enum LoadingState<LoadingViewModel: Equatable>: Equatable {
     case idle
     case loading
-    case failed(ErrorViewModel)
+    case failed(LoadingViewModel,ErrorViewModel)
     case success(LoadingViewModel)
 }

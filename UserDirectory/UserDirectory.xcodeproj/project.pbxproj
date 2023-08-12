@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F21F4502A870BFB00D700D0 /* UserCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */; };
 		9FC61EB62A8524220097B80D /* UserDirectoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */; };
 		9FC61EB82A8524220097B80D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB72A8524220097B80D /* ContentView.swift */; };
 		9FC61EBA2A8524230097B80D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FC61EB92A8524230097B80D /* Assets.xcassets */; };
@@ -23,6 +24,8 @@
 		9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEF2A8573770097B80D /* LoadingState.swift */; };
 		9FC61EF42A8635160097B80D /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EF32A8635160097B80D /* UserRow.swift */; };
 		9FC61EF62A8635210097B80D /* UserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EF52A8635210097B80D /* UserListView.swift */; };
+		9FC61F082A8699640097B80D /* UserDirectoryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61F062A8699640097B80D /* UserDirectoryModel.xcdatamodeld */; };
+		9FC61F0C2A86EBA80097B80D /* PersistanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61F0B2A86EBA80097B80D /* PersistanceController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCoreDataManager.swift; sourceTree = "<group>"; };
 		9FC61EB22A8524220097B80D /* UserDirectory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UserDirectory.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDirectoryApp.swift; sourceTree = "<group>"; };
 		9FC61EB72A8524220097B80D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -62,6 +66,8 @@
 		9FC61EEF2A8573770097B80D /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
 		9FC61EF32A8635160097B80D /* UserRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
 		9FC61EF52A8635210097B80D /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
+		9FC61F072A8699640097B80D /* UserDirectoryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDirectoryModel.xcdatamodel; sourceTree = "<group>"; };
+		9FC61F0B2A86EBA80097B80D /* PersistanceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistanceController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +118,7 @@
 		9FC61EB42A8524220097B80D /* UserDirectory */ = {
 			isa = PBXGroup;
 			children = (
+				9FC61F032A86972B0097B80D /* Managers */,
 				9FC61EF22A8634EA0097B80D /* Views */,
 				9FC61EF12A8634DF0097B80D /* Model */,
 				9FC61EEC2A8572C80097B80D /* ViewModel */,
@@ -200,6 +207,16 @@
 				9FC61EF52A8635210097B80D /* UserListView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		9FC61F032A86972B0097B80D /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				9FC61F062A8699640097B80D /* UserDirectoryModel.xcdatamodeld */,
+				9FC61F0B2A86EBA80097B80D /* PersistanceController.swift */,
+				9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */,
+			);
+			path = Managers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -337,7 +354,10 @@
 				9FC61EB82A8524220097B80D /* ContentView.swift in Sources */,
 				9FC61EF42A8635160097B80D /* UserRow.swift in Sources */,
 				9FC61EE62A85247A0097B80D /* RequestHandler.swift in Sources */,
+				9F21F4502A870BFB00D700D0 /* UserCoreDataManager.swift in Sources */,
+				9FC61F0C2A86EBA80097B80D /* PersistanceController.swift in Sources */,
 				9FC61EE12A85244A0097B80D /* APIRoute.swift in Sources */,
+				9FC61F082A8699640097B80D /* UserDirectoryModel.xcdatamodeld in Sources */,
 				9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */,
 				9FC61EF62A8635210097B80D /* UserListView.swift in Sources */,
 				9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */,
@@ -667,6 +687,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		9FC61F062A8699640097B80D /* UserDirectoryModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				9FC61F072A8699640097B80D /* UserDirectoryModel.xcdatamodel */,
+			);
+			currentVersion = 9FC61F072A8699640097B80D /* UserDirectoryModel.xcdatamodel */;
+			path = UserDirectoryModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 9FC61EAA2A8524220097B80D /* Project object */;
 }

@@ -15,19 +15,25 @@ struct ContentView: View {
         VStack {
             let state = viewModel.state
             switch state {
-            case . idle:
+            case .idle:
                 Color.clear.onAppear(perform: { viewModel.loadData() })
             case .loading:
                 ProgressView()
                     .imageScale(.large)
             case .success(let loadingViewModel):
                 UserListView(loadingViewModel: loadingViewModel, loadMoreDataAction: {
-                    print("Paginate")
+                    viewModel.loadData(loadMore: true)
                 })
             case .failed(let errorViewModel):
-                Color.clear.alert(isPresented: $viewModel.showErrorAlert) {
-                    Alert(title: Text("Error"), message: Text(errorViewModel.message), dismissButton: .default(Text("OK")))
+                VStack {
+                    Text("Offline")
+                        .padding(5)
+                        .foregroundColor(.red)
+                    UserListView(loadingViewModel: errorViewModel.0, loadMoreDataAction: {
+                        print("Paginate")
+                    })
                 }
+                
             }
         }
         .padding()

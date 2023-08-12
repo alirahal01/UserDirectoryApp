@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct UserRow: View {
-    let user: UsersListViewModel.UsersData
+    let user: UsersListViewModel.UsersDataLocal
     
     var body: some View {
         ScrollView {
@@ -27,7 +27,8 @@ struct UserRow: View {
                         
                 }
                 .frame(maxWidth: .infinity)
-                
+                .background(user.cached! ? Color.green : Color.yellow) // Change background color based on isCached property
+
                 VStack(alignment: .leading) { // Set alignment to .center
                     Text(user.username ?? "")
                         .font(.title)
@@ -36,6 +37,7 @@ struct UserRow: View {
                     Text(user.phoneNumber ?? "")
                         .font(.caption)
                 }
+                
                 .frame(maxWidth: .infinity) // Add maxWidth to expand the text horizontally
             }
         }

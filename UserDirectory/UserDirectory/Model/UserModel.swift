@@ -19,11 +19,17 @@ struct UserModelResult: Codable {
     let email: String
     let phone, cell: String
     let picture: Picture
+    let login: Login
 }
 
 // MARK: - Name
 struct Name: Codable {
     let title, first, last: String
+}
+
+// MARK: - Login
+struct Login: Codable {
+    let uuid, username: String
 }
 
 // MARK: - Picture
