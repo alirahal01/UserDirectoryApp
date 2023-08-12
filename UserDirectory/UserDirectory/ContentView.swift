@@ -23,6 +23,8 @@ struct ContentView: View {
             case .success(let loadingViewModel):
                 UserListView(loadingViewModel: loadingViewModel, loadMoreDataAction: {
                     viewModel.loadData(loadMore: true)
+                }, clearCache: {
+                    viewModel.clearCache()
                 })
             case .failed(let errorViewModel):
                 VStack {
@@ -31,6 +33,8 @@ struct ContentView: View {
                         .foregroundColor(.red)
                     UserListView(loadingViewModel: errorViewModel.0, loadMoreDataAction: {
                         print("Paginate")
+                    }, clearCache: {
+                        print("ok")
                     })
                 }
                 

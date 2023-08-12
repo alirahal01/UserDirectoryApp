@@ -11,10 +11,13 @@ import SwiftUI
 struct UserListView: View {
     let loadingViewModel: UsersListViewModel.LoadingViewModel
     let loadMoreDataAction: () -> Void // Closure property to trigger action when last element is reached
+    let clearCache: () -> Void
     
     var body: some View {
         Text("Cached: \(loadingViewModel.numCachedUsers), New: \(loadingViewModel.numNewUsers)")
-        
+        Button("clear cache") {
+            clearCache()
+        }
         List(loadingViewModel.usersData.indices, id: \.self) { index in
             UserRow(user: loadingViewModel.usersData[index])
                 .onAppear {

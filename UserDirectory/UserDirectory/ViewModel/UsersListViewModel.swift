@@ -11,7 +11,7 @@ import SwiftUI
 import CoreData
 
 class UsersListViewModel: ObservableObject {
-
+    
     private var cancellable: AnyCancellable?
     private let requestHandler: RequestHandler?
     @Published var usersModel: [UsersDataLocal] = []
@@ -20,16 +20,16 @@ class UsersListViewModel: ObservableObject {
     
     private var offset: Int = 0
     let userCoreDataManager: UserCoreDataManager
-        
+    
     init(requestHandler: RequestHandler? = nil,persistenceController: PersistenceController) {
         self.requestHandler = requestHandler
         userCoreDataManager = UserCoreDataManager(persistenceController: persistenceController)
     }
-
+    
     func incrementOffset() {
         self.offset += 1
     }
-
+    
     func loadData(loadMore: Bool? = false) {
         guard state != .loading else {
             return
@@ -39,14 +39,14 @@ class UsersListViewModel: ObservableObject {
             self.incrementOffset()
         }
         guard let requestHandler = requestHandler else { return }
-
+        
         requestHandler.request(route: .getUsers(page: String(offset), results: "8")) { [weak self] result in
             DispatchQueue.global().async {
                 self?.handleResponse(result)
             }
         }
     }
-
+    
     private func handleResponse(_ result: Result<UserModel, DataLoadError>) {
         var newUsersData: [UsersDataLocal] = []
         switch result {
@@ -57,13 +57,13 @@ class UsersListViewModel: ObservableObject {
             handleFailure(error, newUsersData)
         }
         
-
+        
         DispatchQueue.main.async {
             self.usersModel = newUsersData
             self.state = .success(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData))
         }
     }
-
+    
     private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
         response.results.forEach { newUser in
             let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false)
@@ -97,7 +97,7 @@ class UsersListViewModel: ObservableObject {
         }
         return []
     }
-
+    
     private func handleFailure(_ error: DataLoadError, _ newUsersData: [UsersDataLocal]) {
         print("Error: \(error)")
         DispatchQueue.main.async {
@@ -116,11 +116,11 @@ extension UsersListViewModel {
         let imageURL: String?
         let cached: Bool?
     }
-
+    
     struct LoadingViewModel: Equatable {
         let id: String
         let usersData: [UsersDataLocal]
-
+        
         static func == (lhs: UsersListViewModel.LoadingViewModel, rhs: UsersListViewModel.LoadingViewModel) -> Bool {
             lhs.id == rhs.id
         }
@@ -129,18 +129,23 @@ extension UsersListViewModel {
 
 extension UsersListViewModel {
     func insertUserData(usersData: UsersDataLocal) {
-            userCoreDataManager.insertDataIntoCoreData(usersData)
-        }
-        
-        func fetchExistingUsers() -> [UsersDataLocal] {
-            return userCoreDataManager.fetchExistingUsers()?
-                .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true) } ?? []
-        }
-        
-        func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
-            return userCoreDataManager.fetchUsersWithoutIDs(ids)
-        }
-        
+        userCoreDataManager.insertDataIntoCoreData(usersData)
+    }
+    
+    func fetchExistingUsers() -> [UsersDataLocal] {
+        return userCoreDataManager.fetchExistingUsers()?
+            .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true) } ?? []
+    }
+    
+    func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
+        return userCoreDataManager.fetchUsersWithoutIDs(ids)
+    }
+    
+    func clearCache() {
+        userCoreDataManager.clearCachedUsers()
+        self.loadData()
+    }
+    
 }
 
 extension UsersListViewModel.LoadingViewModel {

@@ -44,4 +44,16 @@ class UserCoreDataManager {
         
         return try? persistenceController.container.viewContext.fetch(fetchRequest)
     }
+    
+    func clearCachedUsers() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = UserCoreData.fetchRequest()
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        do {
+            try persistenceController.container.viewContext.execute(batchDeleteRequest)
+        } catch {
+            print("Error clearing cache: \(error)")
+        }
+    }
+    
 }
