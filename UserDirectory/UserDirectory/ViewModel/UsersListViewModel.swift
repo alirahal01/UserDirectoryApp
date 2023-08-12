@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 import CoreData
+import CryptoKit
 
 class UsersListViewModel: ObservableObject {
     
@@ -67,6 +68,7 @@ class UsersListViewModel: ObservableObject {
     private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
         response.results.forEach { newUser in
             let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false, gender: newUser.gender)
+            //            userCoreDataManager.test()
             insertUserData(usersData: userModelLocal)
         }
     }
@@ -74,16 +76,37 @@ class UsersListViewModel: ObservableObject {
     fileprivate func handleMappedUsers(_ response: UserModel, _ mappedUsers: [UsersListViewModel.UsersDataLocal]) -> [UsersListViewModel.UsersDataLocal] {
         let responseIDs = response.results.map { $0.login.uuid }
         if let existingUsers = self.fetchUsersWithoutIDs(ids: responseIDs), existingUsers.count != 0 {
-            let cachedUsersData = existingUsers.map {
-                UsersListViewModel.UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true, gender: $0.gender ?? "")
-            }
-            return mappedUsers + cachedUsersData
-            
+            return mappedUsers + self.getDecryptedUsers(existingUsers: existingUsers)
         } else {
             return mappedUsers
         }
     }
     
+    private func getDecryptedUsers(existingUsers: [UserCoreData]) -> [UsersDataLocal] {
+        guard let retrievedKeyData = UserDefaults.standard.data(forKey: "encryptionKey") else { return [] }
+        let retrievedKey = SymmetricKey(data: retrievedKeyData)
+        var decryptedUsers: [UsersDataLocal] = []
+        for user in existingUsers {
+            if let emailData = user.email, let usernameData = user.username {
+                let decryptedEmailData = userCoreDataManager.decryptData(data: emailData, key: retrievedKey)
+                let decryptedUsernamelData = userCoreDataManager.decryptData(data: usernameData, key: retrievedKey)
+                if let username = decryptedUsernamelData, let email = decryptedEmailData  {
+                    if let emailStr = String(data: email, encoding: .utf8), let userNameStr = String(data: username, encoding: .utf8) {
+                        decryptedUsers.append(UsersListViewModel.UsersDataLocal(id: user.id,
+                                                                 username: userNameStr,
+                                                                 phoneNumber: user.phoneNumber,
+                                                                 email: emailStr,
+                                                                 imageURL: user.imageURL,
+                                                                 cached: true,
+                                                                 gender: user.gender ?? ""))
+                    } else {
+                        print("Failed to decode decrypted email data to string")
+                    }
+                }
+            }
+        }
+        return decryptedUsers
+    }
     private func handleSuccess(_ response: UserModel) -> [UsersDataLocal] {
         DispatchQueue.main.async {
             self.showErrorAlert = false
@@ -133,10 +156,10 @@ extension UsersListViewModel {
         userCoreDataManager.insertDataIntoCoreData(usersData)
     }
     
-    func fetchExistingUsers() -> [UsersDataLocal] {
-        return userCoreDataManager.fetchExistingUsers()?
-            .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true, gender: $0.gender) } ?? []
-    }
+    //    func fetchExistingUsers() -> [UsersDataLocal] {
+    //        return userCoreDataManager.fetchExistingUsers()?
+    //            .map { UsersDataLocal(id: $0.id, username: $0.username, phoneNumber: $0.phoneNumber, email: $0.email, imageURL: $0.imageURL, cached: true, gender: $0.gender) } ?? []
+    //    }
     
     func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
         return userCoreDataManager.fetchUsersWithoutIDs(ids)
@@ -169,5 +192,5 @@ extension UsersListViewModel.LoadingViewModel {
         let femaleUsers = usersData.filter { $0.gender == "female" }.count
         return Double(femaleUsers) / Double(totalUsers) * 100
     }
-
+    
 }
