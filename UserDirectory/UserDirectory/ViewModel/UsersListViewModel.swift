@@ -13,7 +13,7 @@ import CryptoKit
 
 class UsersListViewModel: ObservableObject {
     
-    //MARK: Properties
+    //MARK: - Properties
     private var cancellable: AnyCancellable?
     private let requestHandler: RequestHandler?
     private var offset: Int = 0
@@ -33,7 +33,7 @@ class UsersListViewModel: ObservableObject {
         self.generateKey()
     }
     
-    //MARK: Methods
+    //MARK: - Methods
     
     //MARK: LoadData
     /// The `loadMore` function is responsible for:
@@ -145,32 +145,51 @@ class UsersListViewModel: ObservableObject {
             return mappedUsers
         }
     }
-
+    
+    // Decrypts and transforms existing user data to UsersDataLocal format.
     private func getDecryptedUsers(existingUsers: [UserCoreData]) -> [UsersDataLocal] {
-        guard let retrievedKeyData = UserDefaults.standard.data(forKey: "encryptionKey") else { return [] }
+        // Check if an encryption key exists in UserDefaults
+        guard let retrievedKeyData = UserDefaults.standard.data(forKey: "encryptionKey") else {
+            return [] // Return an empty array if encryption key is missing
+        }
+        
+        // Create a SymmetricKey using the retrieved encryption key data
         let retrievedKey = SymmetricKey(data: retrievedKeyData)
+        
+        // Initialize an array to store decrypted user data
         var decryptedUsers: [UsersDataLocal] = []
+        
+        // Iterate through existingUsers and decrypt user data
         for user in existingUsers {
             if let emailData = user.email, let usernameData = user.username {
+                // Decrypt email and username data using the retrieved key
                 let decryptedEmailData = EncryptionManager.shared.decryptData(data: emailData, key: retrievedKey)
-                let decryptedUsernamelData = EncryptionManager.shared.decryptData(data: usernameData, key: retrievedKey)
-                if let username = decryptedUsernamelData, let email = decryptedEmailData  {
-                    if let emailStr = String(data: email, encoding: .utf8), let userNameStr = String(data: username, encoding: .utf8) {
-                        decryptedUsers.append(UsersListViewModel.UsersDataLocal(id: user.id,
-                                                                 username: userNameStr,
-                                                                 phoneNumber: user.phoneNumber,
-                                                                 email: emailStr,
-                                                                 imageURL: user.imageURL,
-                                                                 cached: true,
-                                                                 gender: user.gender ?? ""))
-                    } else {
-                        print("Failed to decode decrypted email data to string")
-                    }
+                let decryptedUsernameData = EncryptionManager.shared.decryptData(data: usernameData, key: retrievedKey)
+                
+                // Check if decryption was successful
+                if let email = decryptedEmailData, let username = decryptedUsernameData,
+                   let emailStr = String(data: email, encoding: .utf8),
+                   let usernameStr = String(data: username, encoding: .utf8) {
+                    // Create a UsersDataLocal instance with decrypted data
+                    let decryptedUser = UsersDataLocal(
+                        id: user.id,
+                        username: usernameStr,
+                        phoneNumber: user.phoneNumber,
+                        email: emailStr,
+                        imageURL: user.imageURL,
+                        cached: true,
+                        gender: user.gender ?? ""
+                    )
+                    decryptedUsers.append(decryptedUser) // Add decrypted user to the array
+                } else {
+                    print("Failed to decode decrypted email data to string")
                 }
             }
         }
-        return decryptedUsers
+        
+        return decryptedUsers // Return the array of decrypted user data
     }
+
     
     private func handleFailure(_ error: DataLoadError, _ newUsersData: [UsersDataLocal]) {
         print("Error: \(error)")
@@ -181,7 +200,10 @@ class UsersListViewModel: ObservableObject {
     }
 }
 
+//MARK: - Extension UsersListViewModel - UsersDataLocal & LoadingViewModel
+//help structure and manage user data and loading states within the view model.
 extension UsersListViewModel {
+    // A structure representing user data with their properties.
     struct UsersDataLocal: Identifiable, Equatable {
         let id: String?
         let username: String?
@@ -192,51 +214,66 @@ extension UsersListViewModel {
         let gender: String?
     }
     
+    // A structure representing the loading state of the view, including a unique ID
+    // and an array of UsersDataLocal for managing and displaying user data.
     struct LoadingViewModel: Equatable {
         let id: String
         let usersData: [UsersDataLocal]
         
+        // Equatable conformance for comparing LoadingViewModel instances.
         static func == (lhs: UsersListViewModel.LoadingViewModel, rhs: UsersListViewModel.LoadingViewModel) -> Bool {
             lhs.id == rhs.id
         }
     }
 }
 
+
+//MARK: - Extension UsersListViewModel - CoreData
+// This extension enhances UsersListViewModel with methods for interacting with Core Data,
 extension UsersListViewModel {
+    // Insert user data into Core Data
     func insertUserData(usersData: UsersDataLocal) {
         userCoreDataManager.insertDataIntoCoreData(usersData)
     }
     
+    // Fetch users from Core Data without specified IDs
     func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
         return userCoreDataManager.fetchUsersWithoutIDs(ids)
     }
     
+    // Clear the cached users from Core Data
+    // and reload fresh data from an external source
     func clearCache() {
         userCoreDataManager.clearCachedUsers()
-        self.loadData()
+        self.loadData() // Triggers loading fresh data
     }
-    
 }
 
+//MARK: - Extension UsersListViewModel - Calculated Properties
+// Extension for enhancing UsersListViewModel.LoadingViewModel with calculated properties
 extension UsersListViewModel.LoadingViewModel {
+    // Calculate the number of users that are cached
     var numCachedUsers: Int {
         usersData.filter { $0.cached ?? false }.count
     }
     
+    // Calculate the number of new (non-cached) users
     var numNewUsers: Int {
         usersData.filter { !($0.cached ?? false) }.count
     }
     
+    // Calculate the percentage of male users in the loaded data
     var malePercentage: Double {
         let totalUsers = usersData.count
         let maleUsers = usersData.filter { $0.gender == "male" }.count
         return Double(maleUsers) / Double(totalUsers) * 100
     }
     
+    // Calculate the percentage of female users in the loaded data
     var femalePercentage: Double {
         let totalUsers = usersData.count
         let femaleUsers = usersData.filter { $0.gender == "female" }.count
         return Double(femaleUsers) / Double(totalUsers) * 100
     }
-    
 }
+

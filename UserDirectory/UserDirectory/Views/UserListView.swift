@@ -16,23 +16,41 @@ struct UserListView: View {
     var body: some View {
         VStack {
             ProgressView(value: loadingViewModel.malePercentage, total: 100.0)
-                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                        .background(Color.pink.opacity(1))
-                        .cornerRadius(6)
-                        .padding(.vertical, 5)
+                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                .background(Color.pink.opacity(1))
+                .cornerRadius(6)
+                .padding(.vertical, 5)
             Text("Female: \(String(format: "%.1f", loadingViewModel.femalePercentage))%, Male: \(String(format: "%.1f", loadingViewModel.malePercentage))%")
-                }
-        Text("Cached: \(loadingViewModel.numCachedUsers), New: \(loadingViewModel.numNewUsers)")
-        Button("clear cache") {
-            clearCache()
         }
+        HStack {
+            Text("Cached: \(loadingViewModel.numCachedUsers), New: \(loadingViewModel.numNewUsers)")
+            Button("clear cache") {
+                clearCache()
+            }
+            .padding(3)
+            .foregroundColor(.white)
+            .background(.red)
+            .cornerRadius(5)
+        }
+        
         List(loadingViewModel.usersData.indices, id: \.self) { index in
-            UserRow(user: loadingViewModel.usersData[index])
-                .onAppear {
-                    if index == loadingViewModel.usersData.count - 1 {
-                        loadMoreDataAction()
+            VStack {
+                UserRow(user: loadingViewModel.usersData[index])
+                    .onAppear {
+                        if index == loadingViewModel.usersData.count - 1 {
+                            loadMoreDataAction()
+                        }
                     }
-                }
+            }
+            .frame(maxWidth: .infinity) //make sure cell expans to the full width of list
+            .overlay(
+                RoundedRectangle(cornerRadius: 20) //adds a rounded rectangle overlay
+                    .stroke(Color.gray, lineWidth: 1)
+            )
+            .listRowSeparator(.hidden) // Hide the row separator
+            .padding(.vertical, 2)
         }
+        .listStyle(PlainListStyle()) // Remove the gray background
+        
     }
 }
