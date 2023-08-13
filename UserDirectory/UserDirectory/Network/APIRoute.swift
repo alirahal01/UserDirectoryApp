@@ -13,12 +13,10 @@ enum APIRoute {
     // We can configure each with required parameters
     case getUsers(page: String?, results: String?)
 
-    private var baseURLString: String { "https://randomuser.me/api/" }
-
     private var url: URL? {
         switch self {
         case .getUsers:
-            return URL(string: baseURLString)
+            return URL(string: URLConstants.baseUrl)
         }
     }
 

@@ -11,7 +11,7 @@ struct ErrorViewModel: Equatable {
     let message: String
 }
 
-enum LoadingState<LoadingViewModel: Equatable>: Equatable {
+enum AppState<LoadingViewModel: Equatable>: Equatable {
     case idle
     case loading
     case failed(LoadingViewModel,ErrorViewModel)

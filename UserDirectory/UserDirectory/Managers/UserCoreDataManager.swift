@@ -18,9 +18,6 @@ class UserCoreDataManager {
     
     init(persistenceController: PersistenceController) {
         self.persistenceController = persistenceController
-        let key = SymmetricKey(size: .bits256)
-        let savedKey = key.withUnsafeBytes {Data($0)}
-        UserDefaults.standard.set(savedKey, forKey: "encryptionKey")
     }
     
     func fetchExistingUsers() -> [UserCoreData]? {
@@ -33,9 +30,9 @@ class UserCoreDataManager {
         if let retrievedKeyData = UserDefaults.standard.data(forKey: "encryptionKey") {
             let retrievedKey = SymmetricKey(data: retrievedKeyData)
             guard let emailToEncrypt = usersData.email?.data(using: .utf8) else { return }
-            let encryptedEmail = self.encryptData(data: emailToEncrypt, key: retrievedKey)
+            let encryptedEmail = EncryptionManager.shared.encryptData(data: emailToEncrypt, key: retrievedKey)
             guard let usernameToEncrypt = usersData.username?.data(using: .utf8) else { return }
-            let encryptedUsername = self.encryptData(data: usernameToEncrypt, key: retrievedKey)
+            let encryptedUsername = EncryptionManager.shared.encryptData(data: usernameToEncrypt, key: retrievedKey)
             
             newUser.email = encryptedEmail
             newUser.username = encryptedUsername
@@ -67,31 +64,6 @@ class UserCoreDataManager {
             try persistenceController.container.viewContext.execute(batchDeleteRequest)
         } catch {
             print("Error clearing cache: \(error)")
-        }
-    }
-    
-}
-
-extension UserCoreDataManager {
-    func encryptData(data: Data, key: SymmetricKey) -> Data? {
-        do {
-            let nonce = AES.GCM.Nonce()
-            let sealedBox = try AES.GCM.seal(data, using: key, nonce: nonce)
-            return sealedBox.combined
-        } catch {
-            print("Encryption error: \(error)")
-            return nil
-        }
-    }
-    
-    func decryptData(data: Data, key: SymmetricKey) -> Data? {
-        do {
-            let sealedBox = try AES.GCM.SealedBox(combined: data)
-            let decryptedData = try AES.GCM.open(sealedBox, using: key)
-            return decryptedData
-        } catch {
-            print("Decryption error: \(error)")
-            return nil
         }
     }
     

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		9F21F4502A870BFB00D700D0 /* UserCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */; };
+		9F21F4522A8849A100D700D0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F4512A8849A100D700D0 /* Constants.swift */; };
+		9F21F4552A88552F00D700D0 /* EncrpytionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */; };
 		9FC61EB62A8524220097B80D /* UserDirectoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */; };
 		9FC61EB82A8524220097B80D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB72A8524220097B80D /* ContentView.swift */; };
 		9FC61EBA2A8524230097B80D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FC61EB92A8524230097B80D /* Assets.xcassets */; };
@@ -21,7 +23,7 @@
 		9FC61EE92A8524A50097B80D /* DataLoadError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EE82A8524A50097B80D /* DataLoadError.swift */; };
 		9FC61EEB2A853BF80097B80D /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEA2A853BF80097B80D /* UserModel.swift */; };
 		9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EED2A8573100097B80D /* UsersListViewModel.swift */; };
-		9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEF2A8573770097B80D /* LoadingState.swift */; };
+		9FC61EF02A8573770097B80D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EEF2A8573770097B80D /* AppState.swift */; };
 		9FC61EF42A8635160097B80D /* UserRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EF32A8635160097B80D /* UserRow.swift */; };
 		9FC61EF62A8635210097B80D /* UserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EF52A8635210097B80D /* UserListView.swift */; };
 		9FC61F082A8699640097B80D /* UserDirectoryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61F062A8699640097B80D /* UserDirectoryModel.xcdatamodeld */; };
@@ -47,6 +49,8 @@
 
 /* Begin PBXFileReference section */
 		9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCoreDataManager.swift; sourceTree = "<group>"; };
+		9F21F4512A8849A100D700D0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncrpytionManager.swift; sourceTree = "<group>"; };
 		9FC61EB22A8524220097B80D /* UserDirectory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UserDirectory.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDirectoryApp.swift; sourceTree = "<group>"; };
 		9FC61EB72A8524220097B80D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -63,7 +67,7 @@
 		9FC61EE82A8524A50097B80D /* DataLoadError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoadError.swift; sourceTree = "<group>"; };
 		9FC61EEA2A853BF80097B80D /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		9FC61EED2A8573100097B80D /* UsersListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersListViewModel.swift; sourceTree = "<group>"; };
-		9FC61EEF2A8573770097B80D /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
+		9FC61EEF2A8573770097B80D /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		9FC61EF32A8635160097B80D /* UserRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRow.swift; sourceTree = "<group>"; };
 		9FC61EF52A8635210097B80D /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
 		9FC61F072A8699640097B80D /* UserDirectoryModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDirectoryModel.xcdatamodel; sourceTree = "<group>"; };
@@ -95,6 +99,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9F21F4532A8849A700D700D0 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				9F21F4512A8849A100D700D0 /* Constants.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
 		9FC61EA92A8524220097B80D = {
 			isa = PBXGroup;
 			children = (
@@ -118,6 +130,7 @@
 		9FC61EB42A8524220097B80D /* UserDirectory */ = {
 			isa = PBXGroup;
 			children = (
+				9F21F4532A8849A700D700D0 /* Constants */,
 				9FC61F032A86972B0097B80D /* Managers */,
 				9FC61EF22A8634EA0097B80D /* Views */,
 				9FC61EF12A8634DF0097B80D /* Model */,
@@ -187,7 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				9FC61EED2A8573100097B80D /* UsersListViewModel.swift */,
-				9FC61EEF2A8573770097B80D /* LoadingState.swift */,
+				9FC61EEF2A8573770097B80D /* AppState.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -215,6 +228,7 @@
 				9FC61F062A8699640097B80D /* UserDirectoryModel.xcdatamodeld */,
 				9FC61F0B2A86EBA80097B80D /* PersistanceController.swift */,
 				9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */,
+				9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -354,13 +368,15 @@
 				9FC61EB82A8524220097B80D /* ContentView.swift in Sources */,
 				9FC61EF42A8635160097B80D /* UserRow.swift in Sources */,
 				9FC61EE62A85247A0097B80D /* RequestHandler.swift in Sources */,
+				9F21F4522A8849A100D700D0 /* Constants.swift in Sources */,
 				9F21F4502A870BFB00D700D0 /* UserCoreDataManager.swift in Sources */,
 				9FC61F0C2A86EBA80097B80D /* PersistanceController.swift in Sources */,
+				9F21F4552A88552F00D700D0 /* EncrpytionManager.swift in Sources */,
 				9FC61EE12A85244A0097B80D /* APIRoute.swift in Sources */,
 				9FC61F082A8699640097B80D /* UserDirectoryModel.xcdatamodeld in Sources */,
 				9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */,
 				9FC61EF62A8635210097B80D /* UserListView.swift in Sources */,
-				9FC61EF02A8573770097B80D /* LoadingState.swift in Sources */,
+				9FC61EF02A8573770097B80D /* AppState.swift in Sources */,
 				9FC61EE32A8524540097B80D /* RequestHandling.swift in Sources */,
 				9FC61EB62A8524220097B80D /* UserDirectoryApp.swift in Sources */,
 			);
