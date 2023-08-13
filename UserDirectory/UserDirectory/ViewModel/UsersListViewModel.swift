@@ -22,7 +22,7 @@ class UsersListViewModel: ObservableObject {
     @Published var usersModel: [UsersDataLocal] = []
     @Published var showErrorAlert = false
     var networkMonitor = NetworkMonitor()
-    @Published var isConnected = true
+    @Published var isConnected = false
     /// The `state` property plays an important role in the entire application's workflow.
     /// contains information related to the loading process, such as progress, success, error, or idle states.
     @Published private(set) var state: AppState<LoadingViewModel> = .idle
@@ -63,6 +63,7 @@ class UsersListViewModel: ObservableObject {
         networkMonitor.$isConnected // Use the publisher from NetworkMonitor
             .receive(on: DispatchQueue.main) // Ensure updates are on the main thread
             .sink { [weak self] isConnected in
+                self?.isConnected = isConnected
                 self?.loadData()
             }
             .store(in: &cancellables) // Store the cancellable
@@ -174,7 +175,8 @@ class UsersListViewModel: ObservableObject {
         print("Error: \(error)")
         DispatchQueue.main.async {
             self.showErrorAlert = true
-            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData), error)
+            
+            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: self.fetchExistingUsers()), error)
         }
     }
 }

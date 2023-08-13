@@ -33,7 +33,11 @@ final class RequestHandler: RequestHandling {
             }
 
             if let error = error {
-                completion(.failure(.genericError(error.localizedDescription)))
+                if (error as NSError?)?.code == -1009 {
+                    completion(.failure(.offline))
+                } else {
+                    completion(.failure(.genericError(error.localizedDescription)))
+                }
                 return
             }
 
