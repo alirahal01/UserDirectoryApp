@@ -10,6 +10,7 @@
 		9F21F4502A870BFB00D700D0 /* UserCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */; };
 		9F21F4522A8849A100D700D0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F4512A8849A100D700D0 /* Constants.swift */; };
 		9F21F4552A88552F00D700D0 /* EncrpytionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */; };
+		9F21F4572A88F6E700D700D0 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F21F4562A88F6E700D700D0 /* NetworkManager.swift */; };
 		9FC61EB62A8524220097B80D /* UserDirectoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */; };
 		9FC61EB82A8524220097B80D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC61EB72A8524220097B80D /* ContentView.swift */; };
 		9FC61EBA2A8524230097B80D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FC61EB92A8524230097B80D /* Assets.xcassets */; };
@@ -51,6 +52,7 @@
 		9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCoreDataManager.swift; sourceTree = "<group>"; };
 		9F21F4512A8849A100D700D0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncrpytionManager.swift; sourceTree = "<group>"; };
+		9F21F4562A88F6E700D700D0 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		9FC61EB22A8524220097B80D /* UserDirectory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UserDirectory.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FC61EB52A8524220097B80D /* UserDirectoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDirectoryApp.swift; sourceTree = "<group>"; };
 		9FC61EB72A8524220097B80D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 				9FC61F0B2A86EBA80097B80D /* PersistanceController.swift */,
 				9F21F44F2A870BFB00D700D0 /* UserCoreDataManager.swift */,
 				9F21F4542A88552F00D700D0 /* EncrpytionManager.swift */,
+				9F21F4562A88F6E700D700D0 /* NetworkManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -373,6 +376,7 @@
 				9FC61F0C2A86EBA80097B80D /* PersistanceController.swift in Sources */,
 				9F21F4552A88552F00D700D0 /* EncrpytionManager.swift in Sources */,
 				9FC61EE12A85244A0097B80D /* APIRoute.swift in Sources */,
+				9F21F4572A88F6E700D700D0 /* NetworkManager.swift in Sources */,
 				9FC61F082A8699640097B80D /* UserDirectoryModel.xcdatamodeld in Sources */,
 				9FC61EEE2A8573100097B80D /* UsersListViewModel.swift in Sources */,
 				9FC61EF62A8635210097B80D /* UserListView.swift in Sources */,

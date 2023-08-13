@@ -14,23 +14,27 @@ import CryptoKit
 class UsersListViewModel: ObservableObject {
     
     //MARK: - Properties
-    private var cancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable> = []
     private let requestHandler: RequestHandler?
     private var offset: Int = 0
     private let keyUserDefaultsKey = "encryptionKey"
     let userCoreDataManager: UserCoreDataManager
     @Published var usersModel: [UsersDataLocal] = []
     @Published var showErrorAlert = false
+    var networkMonitor = NetworkMonitor()
+    @Published var isConnected = false
     /// The `state` property plays an important role in the entire application's workflow.
     /// contains information related to the loading process, such as progress, success, error, or idle states.
     @Published private(set) var state: AppState<LoadingViewModel> = .idle
-
+    
     
     //MARK: Initialization
     init(requestHandler: RequestHandler? = nil,persistenceController: PersistenceController) {
         self.requestHandler = requestHandler
         userCoreDataManager = UserCoreDataManager(persistenceController: persistenceController)
         self.generateKey()
+        self.setupNetworkMonitor()
+        
     }
     
     //MARK: - Methods
@@ -40,14 +44,12 @@ class UsersListViewModel: ObservableObject {
     /// 1- Reacting to the current state and setting it to "loading".
     /// 2- Handling pagination logic.
     /// 3- Requesting user data based on the updated offset.
-    /// - Parameter loadMore: load more will be set to to true when pagination need to be triggered  this occurs in user list 
+    /// - Parameter loadMore: load more will be set to to true when pagination need to be triggered  this occurs in user list
     func loadData(loadMore: Bool? = false) {
         guard state != .loading else {
             return
         }
-        state = .loading
-        handlePagination(loadMore: loadMore)
-        requestUsersData()
+        isConnected ? handleOnlineMode(loadMore: loadMore) : handleOfflineMode()
     }
     
     //MARK: Pagination
@@ -55,6 +57,25 @@ class UsersListViewModel: ObservableObject {
         if(loadMore == true) { self.offset += 1 }
     }
     
+    //MARK: Network Monitoring
+    private func setupNetworkMonitor() {
+        networkMonitor.start()
+        networkMonitor.$isConnected // Use the publisher from NetworkMonitor
+            .receive(on: DispatchQueue.main) // Ensure updates are on the main thread
+            .assign(to: \.isConnected, on: self) // Assign the value to your own publisher
+            .store(in: &cancellables) // Store the cancellable
+    }
+    
+    private func handleOfflineMode() {
+        let loadingViewModel = (LoadingViewModel(id: UUID().uuidString, usersData: self.fetchExistingUsers()))
+        state = .failed(loadingViewModel, ErrorViewModel(message: "Offline"))
+    }
+    
+    private func handleOnlineMode(loadMore: Bool? = false) {
+        state = .loading
+        handlePagination(loadMore: loadMore)
+        requestUsersData()
+    }
     private func generateKey() {
         if UserDefaults.standard.data(forKey: keyUserDefaultsKey) == nil {
             // Generate a new key and save it to UserDefaults
@@ -100,7 +121,7 @@ class UsersListViewModel: ObservableObject {
             self.state = .success(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData))
         }
     }
-
+    
     private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
         response.results.forEach { newUser in
             let userModelLocal = UsersDataLocal(id: newUser.login.uuid, username: newUser.login.username, phoneNumber: newUser.phone, email: newUser.email, imageURL: newUser.picture.large, cached: false, gender: newUser.gender)
@@ -146,6 +167,71 @@ class UsersListViewModel: ObservableObject {
         }
     }
     
+    private func handleFailure(_ error: DataLoadError, _ newUsersData: [UsersDataLocal]) {
+        print("Error: \(error)")
+        DispatchQueue.main.async {
+            self.showErrorAlert = true
+            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData), ErrorViewModel(message: error.localizedDescription))
+        }
+    }
+    
+    deinit {
+        networkMonitor.stop()
+    }
+}
+
+//MARK: - Extension UsersListViewModel - UsersDataLocal & LoadingViewModel
+//help structure and manage user data and loading states within the view model.
+extension UsersListViewModel {
+    // A structure representing user data with their properties.
+    struct UsersDataLocal: Identifiable, Equatable {
+        let id: String?
+        let username: String?
+        let phoneNumber: String?
+        let email: String?
+        let imageURL: String?
+        let cached: Bool?
+        let gender: String?
+    }
+    
+    // A structure representing the loading state of the view, including a unique ID
+    // and an array of UsersDataLocal for managing and displaying user data.
+    struct LoadingViewModel: Equatable {
+        let id: String
+        let usersData: [UsersDataLocal]
+        
+        // Equatable conformance for comparing LoadingViewModel instances.
+        static func == (lhs: UsersListViewModel.LoadingViewModel, rhs: UsersListViewModel.LoadingViewModel) -> Bool {
+            lhs.id == rhs.id
+        }
+    }
+}
+
+
+//MARK: - Extension UsersListViewModel - CoreData
+// This extension enhances UsersListViewModel with methods for interacting with Core Data,
+extension UsersListViewModel {
+    // Insert user data into Core Data
+    func insertUserData(usersData: UsersDataLocal) {
+        userCoreDataManager.insertDataIntoCoreData(usersData)
+    }
+    
+    func fetchExistingUsers() -> [UsersDataLocal] {
+        return getDecryptedUsers(existingUsers: userCoreDataManager.fetchExistingUsers() ?? [])
+    }
+    
+    // Fetch users from Core Data without specified IDs
+    func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
+        return userCoreDataManager.fetchUsersWithoutIDs(ids)
+    }
+    
+    // Clear the cached users from Core Data
+    // and reload fresh data from an external source
+    func clearCache() {
+        userCoreDataManager.clearCachedUsers()
+        self.loadData() // Triggers loading fresh data
+    }
+    
     // Decrypts and transforms existing user data to UsersDataLocal format.
     private func getDecryptedUsers(existingUsers: [UserCoreData]) -> [UsersDataLocal] {
         // Check if an encryption key exists in UserDefaults
@@ -188,64 +274,6 @@ class UsersListViewModel: ObservableObject {
         }
         
         return decryptedUsers // Return the array of decrypted user data
-    }
-
-    
-    private func handleFailure(_ error: DataLoadError, _ newUsersData: [UsersDataLocal]) {
-        print("Error: \(error)")
-        DispatchQueue.main.async {
-            self.showErrorAlert = true
-            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData), ErrorViewModel(message: error.localizedDescription))
-        }
-    }
-}
-
-//MARK: - Extension UsersListViewModel - UsersDataLocal & LoadingViewModel
-//help structure and manage user data and loading states within the view model.
-extension UsersListViewModel {
-    // A structure representing user data with their properties.
-    struct UsersDataLocal: Identifiable, Equatable {
-        let id: String?
-        let username: String?
-        let phoneNumber: String?
-        let email: String?
-        let imageURL: String?
-        let cached: Bool?
-        let gender: String?
-    }
-    
-    // A structure representing the loading state of the view, including a unique ID
-    // and an array of UsersDataLocal for managing and displaying user data.
-    struct LoadingViewModel: Equatable {
-        let id: String
-        let usersData: [UsersDataLocal]
-        
-        // Equatable conformance for comparing LoadingViewModel instances.
-        static func == (lhs: UsersListViewModel.LoadingViewModel, rhs: UsersListViewModel.LoadingViewModel) -> Bool {
-            lhs.id == rhs.id
-        }
-    }
-}
-
-
-//MARK: - Extension UsersListViewModel - CoreData
-// This extension enhances UsersListViewModel with methods for interacting with Core Data,
-extension UsersListViewModel {
-    // Insert user data into Core Data
-    func insertUserData(usersData: UsersDataLocal) {
-        userCoreDataManager.insertDataIntoCoreData(usersData)
-    }
-    
-    // Fetch users from Core Data without specified IDs
-    func fetchUsersWithoutIDs(ids: [String]) -> [UserCoreData]? {
-        return userCoreDataManager.fetchUsersWithoutIDs(ids)
-    }
-    
-    // Clear the cached users from Core Data
-    // and reload fresh data from an external source
-    func clearCache() {
-        userCoreDataManager.clearCachedUsers()
-        self.loadData() // Triggers loading fresh data
     }
 }
 
