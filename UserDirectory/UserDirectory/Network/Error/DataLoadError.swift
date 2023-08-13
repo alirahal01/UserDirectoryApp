@@ -7,13 +7,14 @@
 
 import Foundation
 
-enum DataLoadError: Error {
+enum DataLoadError: Error, Equatable {
     case badURL
     case genericError(String)
     case noData
     case malformedContent
     case invalidResponseCode(Int)
     case decodingError(String)
+    case offline
 
     func errorMessageString() -> String {
         switch self {
@@ -27,6 +28,8 @@ enum DataLoadError: Error {
             return "Received malformed content. Error may have been logged on the server to investigate further"
         case let .invalidResponseCode(code):
             return "Server returned invalid response code. Expected between the range 200-299. Server returned \(code)"
+        case .offline:
+            return "Your device is currently offline. Please check your internet connection and try again."
         case let .decodingError(message):
             return message
         }

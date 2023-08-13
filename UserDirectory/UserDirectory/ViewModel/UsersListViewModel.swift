@@ -22,7 +22,7 @@ class UsersListViewModel: ObservableObject {
     @Published var usersModel: [UsersDataLocal] = []
     @Published var showErrorAlert = false
     var networkMonitor = NetworkMonitor()
-    @Published var isConnected = false
+    @Published var isConnected = true
     /// The `state` property plays an important role in the entire application's workflow.
     /// contains information related to the loading process, such as progress, success, error, or idle states.
     @Published private(set) var state: AppState<LoadingViewModel> = .idle
@@ -62,13 +62,16 @@ class UsersListViewModel: ObservableObject {
         networkMonitor.start()
         networkMonitor.$isConnected // Use the publisher from NetworkMonitor
             .receive(on: DispatchQueue.main) // Ensure updates are on the main thread
-            .assign(to: \.isConnected, on: self) // Assign the value to your own publisher
+            .sink { [weak self] isConnected in
+                self?.loadData()
+            }
             .store(in: &cancellables) // Store the cancellable
+        
     }
     
     private func handleOfflineMode() {
         let loadingViewModel = (LoadingViewModel(id: UUID().uuidString, usersData: self.fetchExistingUsers()))
-        state = .failed(loadingViewModel, ErrorViewModel(message: "Offline"))
+        state = .failed(loadingViewModel, DataLoadError.offline)
     }
     
     private func handleOnlineMode(loadMore: Bool? = false) {
@@ -110,16 +113,16 @@ class UsersListViewModel: ObservableObject {
             
             // Handle success response and update newUsersData
             newUsersData = handleSuccess(response)
-            
+            // Update loading state on the main queue
+            DispatchQueue.main.async {
+                self.state = .success(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData))
+            }
         case .failure(let error):
             // Handle failure response and update newUsersData
             handleFailure(error, newUsersData)
         }
         
-        // Update loading state on the main queue
-        DispatchQueue.main.async {
-            self.state = .success(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData))
-        }
+        
     }
     
     private func handleCaching(_ response: UserModel, _ newUsersData: inout [UsersDataLocal]) {
@@ -171,12 +174,8 @@ class UsersListViewModel: ObservableObject {
         print("Error: \(error)")
         DispatchQueue.main.async {
             self.showErrorAlert = true
-            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData), ErrorViewModel(message: error.localizedDescription))
+            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData), error)
         }
-    }
-    
-    deinit {
-        networkMonitor.stop()
     }
 }
 

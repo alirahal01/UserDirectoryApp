@@ -7,13 +7,9 @@
 
 import Foundation
 
-struct ErrorViewModel: Equatable {
-    let message: String
-}
-
 enum AppState<LoadingViewModel: Equatable>: Equatable {
     case idle
     case loading
-    case failed(LoadingViewModel,ErrorViewModel)
+    case failed(LoadingViewModel,DataLoadError)
     case success(LoadingViewModel)
 }

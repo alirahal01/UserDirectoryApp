@@ -26,18 +26,23 @@ struct ContentView: View {
                 }, clearCache: {
                     viewModel.clearCache()
                 })
-            case .failed(let errorViewModel):
-                VStack {
-                    Text("Offline")
-                        .padding(5)
-                        .foregroundColor(.red)
-                    UserListView(loadingViewModel: errorViewModel.0, loadMoreDataAction: {
-                        print("Paginate")
-                    }, clearCache: {
-                        print("ok")
-                    })
+            case .failed(let errorViewModel, let dataLoadError):
+                if case .offline = dataLoadError {
+                    VStack {
+                        Text(dataLoadError.errorMessageString())
+                            .padding(5)
+                            .foregroundColor(.red)
+                        UserListView(loadingViewModel: errorViewModel, loadMoreDataAction: {
+                            print("Offline")
+                        }, clearCache: {
+                            print("Offline")
+                        })
+                    }
+                } else {
+                    Color.clear.alert(isPresented: $viewModel.showErrorAlert) {
+                        Alert(title: Text("Error"), message: Text(dataLoadError.errorMessageString()), dismissButton: .default(Text("OK")))
+                    }
                 }
-                
             }
         }
         .padding()
