@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum AppState<LoadingViewModel: Equatable>: Equatable {
+enum AppState<T: Equatable>: Equatable {
     case idle
     case loading
-    case failed(LoadingViewModel,DataLoadError)
-    case success(LoadingViewModel)
+    case failed(DataLoadError)
+    case success
 }

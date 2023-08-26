@@ -9,21 +9,21 @@ import Foundation
 import SwiftUI
 
 struct UserListView: View {
-    let loadingViewModel: UsersListViewModel.LoadingViewModel
+    let viewModel: UsersListViewModel
     let loadMoreDataAction: () -> Void // Closure property to trigger action when last element is reached
     let clearCache: () -> Void
     
     var body: some View {
         VStack {
-            ProgressView(value: loadingViewModel.malePercentage, total: 100.0)
+            ProgressView(value: viewModel.malePercentage, total: 100.0)
                 .progressViewStyle(LinearProgressViewStyle(tint: .blue))
                 .background(Color.pink.opacity(1))
                 .cornerRadius(6)
                 .padding(.vertical, 5)
-            Text("Female: \(String(format: "%.1f", loadingViewModel.femalePercentage))%, Male: \(String(format: "%.1f", loadingViewModel.malePercentage))%")
+            Text("Female: \(String(format: "%.1f", viewModel.femalePercentage))%, Male: \(String(format: "%.1f", viewModel.malePercentage))%")
         }
         HStack {
-            Text("Cached: \(loadingViewModel.numCachedUsers), New: \(loadingViewModel.numNewUsers)")
+            Text("Cached: \(viewModel.numCachedUsers), New: \(viewModel.numNewUsers)")
             Button("clear cache") {
                 clearCache()
             }
@@ -33,11 +33,11 @@ struct UserListView: View {
             .cornerRadius(5)
         }
         
-        List(loadingViewModel.usersData.indices, id: \.self) { index in
+        List(viewModel.usersModel.indices, id: \.self) { index in
             VStack {
-                UserRow(user: loadingViewModel.usersData[index])
+                UserRow(user: viewModel.usersModel[index])
                     .onAppear {
-                        if index == loadingViewModel.usersData.count - 1 {
+                        if index == viewModel.usersModel.count - 1 {
                             loadMoreDataAction()
                         }
                     }

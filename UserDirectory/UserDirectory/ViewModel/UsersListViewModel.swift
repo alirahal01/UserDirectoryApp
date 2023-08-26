@@ -25,7 +25,7 @@ class UsersListViewModel: ObservableObject {
     @Published var isConnected = false
     /// The `state` property plays an important role in the entire application's workflow.
     /// contains information related to the loading process, such as progress, success, error, or idle states.
-    @Published private(set) var state: AppState<LoadingViewModel> = .idle
+    @Published private(set) var state: AppState<[UsersDataLocal]> = .idle
     
     
     //MARK: Initialization
@@ -71,8 +71,8 @@ class UsersListViewModel: ObservableObject {
     }
     
     private func handleOfflineMode() {
-        let loadingViewModel = (LoadingViewModel(id: UUID().uuidString, usersData: self.fetchExistingUsers()))
-        state = .failed(loadingViewModel, DataLoadError.offline)
+        self.usersModel = self.fetchExistingUsers()
+        state = .failed(DataLoadError.offline)
     }
     
     private func handleOnlineMode(loadMore: Bool? = false) {
@@ -116,7 +116,8 @@ class UsersListViewModel: ObservableObject {
             newUsersData = handleSuccess(response)
             // Update loading state on the main queue
             DispatchQueue.main.async {
-                self.state = .success(LoadingViewModel(id: UUID().uuidString, usersData: newUsersData))
+                self.usersModel = newUsersData
+                self.state = .success
             }
         case .failure(let error):
             // Handle failure response and update newUsersData
@@ -175,8 +176,8 @@ class UsersListViewModel: ObservableObject {
         print("Error: \(error)")
         DispatchQueue.main.async {
             self.showErrorAlert = true
-            
-            self.state = .failed(LoadingViewModel(id: UUID().uuidString, usersData: self.fetchExistingUsers()), error)
+            self.usersModel = self.fetchExistingUsers()
+            self.state = .failed(error)
         }
     }
 }
@@ -195,17 +196,6 @@ extension UsersListViewModel {
         let gender: String?
     }
     
-    // A structure representing the loading state of the view, including a unique ID
-    // and an array of UsersDataLocal for managing and displaying user data.
-    struct LoadingViewModel: Equatable {
-        let id: String
-        let usersData: [UsersDataLocal]
-        
-        // Equatable conformance for comparing LoadingViewModel instances.
-        static func == (lhs: UsersListViewModel.LoadingViewModel, rhs: UsersListViewModel.LoadingViewModel) -> Bool {
-            lhs.id == rhs.id
-        }
-    }
 }
 
 
@@ -280,28 +270,28 @@ extension UsersListViewModel {
 
 //MARK: - Extension UsersListViewModel - Calculated Properties
 // Extension for enhancing UsersListViewModel.LoadingViewModel with calculated properties
-extension UsersListViewModel.LoadingViewModel {
+extension UsersListViewModel {
     // Calculate the number of users that are cached
     var numCachedUsers: Int {
-        usersData.filter { $0.cached ?? false }.count
+        usersModel.filter { $0.cached ?? false }.count
     }
     
     // Calculate the number of new (non-cached) users
     var numNewUsers: Int {
-        usersData.filter { !($0.cached ?? false) }.count
+        usersModel.filter { !($0.cached ?? false) }.count
     }
     
     // Calculate the percentage of male users in the loaded data
     var malePercentage: Double {
-        let totalUsers = usersData.count
-        let maleUsers = usersData.filter { $0.gender == "male" }.count
+        let totalUsers = usersModel.count
+        let maleUsers = usersModel.filter { $0.gender == "male" }.count
         return Double(maleUsers) / Double(totalUsers) * 100
     }
     
     // Calculate the percentage of female users in the loaded data
     var femalePercentage: Double {
-        let totalUsers = usersData.count
-        let femaleUsers = usersData.filter { $0.gender == "female" }.count
+        let totalUsers = usersModel.count
+        let femaleUsers = usersModel.filter { $0.gender == "female" }.count
         return Double(femaleUsers) / Double(totalUsers) * 100
     }
 }

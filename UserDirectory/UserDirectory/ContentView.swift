@@ -20,19 +20,19 @@ struct ContentView: View {
             case .loading:
                 ProgressView()
                     .imageScale(.large)
-            case .success(let loadingViewModel):
-                UserListView(loadingViewModel: loadingViewModel, loadMoreDataAction: {
+            case .success:
+                UserListView(viewModel: viewModel, loadMoreDataAction: {
                     viewModel.loadData(loadMore: true)
                 }, clearCache: {
                     viewModel.clearCache()
                 })
-            case .failed(let errorViewModel, let dataLoadError):
+            case .failed(let dataLoadError):
                 if case .offline = dataLoadError {
                     VStack {
                         Text(dataLoadError.errorMessageString())
                             .padding(5)
                             .foregroundColor(.red)
-                        UserListView(loadingViewModel: errorViewModel, loadMoreDataAction: {
+                        UserListView(viewModel: viewModel, loadMoreDataAction: {
                             print("Offline")
                         }, clearCache: {
                             print("Offline")
